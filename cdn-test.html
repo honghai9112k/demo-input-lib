@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CDN - Lowcode Input Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #047857; }
+        .error { background: #fee2e2; color: #dc2626; }
+        .input-demo {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        h3 { color: #374151; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Thư Viện Input từ CDN</h1>
+    
+    <div class="container">
+        <h2>1. Load Library từ GitHub CDN</h2>
+        <div id="cdn-status">⏳ Đang tải...</div>
+        
+        <h2>2. Test Constructor</h2>
+        <div id="constructor-status"></div>
+        
+        <h2>3. Demo các Input thực tế</h2>
+        <div id="demo-inputs"></div>
+    </div>
+
+    <!-- Load từ GitHub CDN -->
+    <script src="https://raw.githubusercontent.com/honghai9112k/demo-input-lib/master/dist/lowcode-input-lib.umd.js"></script>
+    
+    <script>
+        // Kiểm tra CDN load
+        function checkCDN() {
+            const statusDiv = document.getElementById('cdn-status');
+            
+            setTimeout(() => {
+                if (typeof window.LowcodeInputLib !== 'undefined') {
+                    statusDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ CDN loaded thành công!<br>
+                            <strong>Available classes:</strong> ${Object.keys(window.LowcodeInputLib).join(', ')}
+                        </div>
+                    `;
+                    testConstructors();
+                    createDemo();
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ CDN không load được! Có thể do CORS policy hoặc network issue.
+                        </div>
+                    `;
+                }
+            }, 1000);
+        }
+        
+        // Test constructors
+        function testConstructors() {
+            const statusDiv = document.getElementById('constructor-status');
+            const tests = ['TextInput', 'NumberInput', 'SelectInput'];
+            let results = '';
+            
+            tests.forEach(className => {
+                try {
+                    const instance = new window.LowcodeInputLib[className]({
+                        label: `Test ${className}`,
+                        name: `test_${className.toLowerCase()}`
+                    });
+                    
+                    if (instance && typeof instance.render === 'function') {
+                        results += `<div class="status success">✅ ${className} constructor OK</div>`;
+                    } else {
+                        results += `<div class="status error">❌ ${className} không có render method</div>`;
+                    }
+                } catch (error) {
+                    results += `<div class="status error">❌ ${className}: ${error.message}</div>`;
+                }
+            });
+            
+            statusDiv.innerHTML = results;
+        }
+        
+        // Tạo demo thực tế
+        function createDemo() {
+            const demoDiv = document.getElementById('demo-inputs');
+            
+            try {
+                // Text input
+                const nameInput = new window.LowcodeInputLib.TextInput({
+                    label: 'Họ và tên 👤',
+                    name: 'fullname',
+                    placeholder: 'Nhập họ tên của bạn...',
+                    required: true
+                });
+                
+                // Number input
+                const ageInput = new window.LowcodeInputLib.NumberInput({
+                    label: 'Tuổi 🎂',
+                    name: 'age',
+                    min: 0,
+                    max: 150,
+                    placeholder: 'Nhập tuổi...'
+                });
+                
+                // Select input
+                const citySelect = new window.LowcodeInputLib.SelectInput({
+                    label: 'Thành phố 🏙️',
+                    name: 'city',
+                    options: [
+                        { value: '', text: '-- Chọn thành phố --' },
+                        { value: 'hanoi', text: '🏛️ Hà Nội' },
+                        { value: 'hcm', text: '🌃 TP. Hồ Chí Minh' },
+                        { value: 'danang', text: '🌊 Đà Nẵng' },
+                        { value: 'haiphong', text: '⚓ Hải Phòng' }
+                    ]
+                });
+                
+                // Textarea
+                const messageInput = new window.LowcodeInputLib.TextareaInput({
+                    label: 'Tin nhắn 💬',
+                    name: 'message',
+                    placeholder: 'Nhập tin nhắn của bạn...',
+                    rows: 4
+                });
+                
+                // Checkbox
+                const agreeCheck = new window.LowcodeInputLib.CheckboxInput({
+                    label: 'Tôi đồng ý với điều khoản sử dụng 📋',
+                    name: 'agree_terms'
+                });
+                
+                // Date input
+                const birthdayInput = new window.LowcodeInputLib.DateInput({
+                    label: 'Ngày sinh 📅',
+                    name: 'birthday'
+                });
+                
+                // Render tất cả
+                demoDiv.innerHTML = `
+                    <div class="status success">✅ Tất cả input đã được tạo và render thành công!</div>
+                    
+                    <div class="input-demo">
+                        <h3>Text Input:</h3>
+                        ${nameInput.render()}
+                    </div>
+                    
+                    <div class="input-demo">
+                        <h3>Number Input:</h3>
+                        ${ageInput.render()}
+                    </div>
+                    
+                    <div class="input-demo">
+                        <h3>Select Input:</h3>
+                        ${citySelect.render()}
+                    </div>
+                    
+                    <div class="input-demo">
+                        <h3>Textarea Input:</h3>
+                        ${messageInput.render()}
+                    </div>
+                    
+                    <div class="input-demo">
+                        <h3>Checkbox Input:</h3>
+                        ${agreeCheck.render()}
+                    </div>
+                    
+                    <div class="input-demo">
+                        <h3>Date Input:</h3>
+                        ${birthdayInput.render()}
+                    </div>
+                    
+                    <div class="input-demo" style="background: #e0f2fe; border-color: #0284c7;">
+                        <h3>🎉 Test Values (Kiểm tra trong Console):</h3>
+                        <button onclick="testGetValues()" style="background: #0284c7; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+                            Lấy tất cả giá trị
+                        </button>
+                    </div>
+                `;
+                
+                // Function để test lấy values
+                window.testGetValues = function() {
+                    const values = {
+                        fullname: document.querySelector('input[name="fullname"]')?.value || '',
+                        age: document.querySelector('input[name="age"]')?.value || '',
+                        city: document.querySelector('select[name="city"]')?.value || '',
+                        message: document.querySelector('textarea[name="message"]')?.value || '',
+                        agree_terms: document.querySelector('input[name="agree_terms"]')?.checked || false,
+                        birthday: document.querySelector('input[name="birthday"]')?.value || ''
+                    };
+                    
+                    console.log('📊 Form Values:', values);
+                    alert('✅ Values logged to console!\n\n' + JSON.stringify(values, null, 2));
+                };
+                
+            } catch (error) {
+                demoDiv.innerHTML = `<div class="status error">❌ Lỗi tạo demo: ${error.message}</div>`;
+            }
+        }
+        
+        // Start test
+        checkCDN();
+    </script>
+</body>
+</html>

@@ -43,6 +43,13 @@ class BaseInput {
     }
   }
 
+  render() {
+    if (!this.element) {
+      this.element = this.createElement();
+    }
+    return this.element.outerHTML;
+  }
+
   getValue() {
     if (!this.element) return this.value;
     

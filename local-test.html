@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Local - Input Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .test-result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .demo-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 Test Thư Viện Input (Local)</h1>
+        
+        <div id="status"></div>
+        <div id="demo-area"></div>
+    </div>
+    
+    <!-- Load local file -->
+    <script src="./dist/lowcode-input-lib.umd.js"></script>
+    
+    <script>
+        function runTest() {
+            const statusDiv = document.getElementById('status');
+            const demoDiv = document.getElementById('demo-area');
+            
+            // Check library loaded
+            if (typeof window.LowcodeInputLib === 'undefined') {
+                statusDiv.innerHTML = '<div class="test-result error">❌ Library không load được!</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = `
+                <div class="test-result success">
+                    ✅ Library load thành công!<br>
+                    <strong>Classes:</strong> ${Object.keys(window.LowcodeInputLib).join(', ')}
+                </div>
+            `;
+            
+            // Test tạo inputs
+            try {
+                const textInput = new window.LowcodeInputLib.TextInput({
+                    label: 'Email của bạn',
+                    name: 'email',
+                    placeholder: 'example@domain.com',
+                    required: true
+                });
+                
+                const selectInput = new window.LowcodeInputLib.SelectInput({
+                    label: 'Nghề nghiệp',
+                    name: 'job',
+                    options: [
+                        { value: '', text: 'Chọn nghề nghiệp...' },
+                        { value: 'developer', text: '👨‍💻 Lập trình viên' },
+                        { value: 'designer', text: '🎨 Thiết kế' },
+                        { value: 'manager', text: '👔 Quản lý' },
+                        { value: 'other', text: '🤝 Khác' }
+                    ]
+                });
+                
+                const numberInput = new window.LowcodeInputLib.NumberInput({
+                    label: 'Số năm kinh nghiệm',
+                    name: 'experience',
+                    min: 0,
+                    max: 50
+                });
+                
+                const checkboxInput = new window.LowcodeInputLib.CheckboxInput({
+                    label: 'Đăng ký nhận tin tức',
+                    name: 'newsletter'
+                });
+                
+                demoDiv.innerHTML = `
+                    <div class="test-result success">✅ Tất cả constructors hoạt động OK!</div>
+                    
+                    <div class="demo-section">
+                        <h3>📧 Text Input:</h3>
+                        ${textInput.render()}
+                    </div>
+                    
+                    <div class="demo-section">
+                        <h3>💼 Select Input:</h3>
+                        ${selectInput.render()}
+                    </div>
+                    
+                    <div class="demo-section">
+                        <h3>📊 Number Input:</h3>
+                        ${numberInput.render()}
+                    </div>
+                    
+                    <div class="demo-section">
+                        <h3>☑️ Checkbox Input:</h3>
+                        ${checkboxInput.render()}
+                    </div>
+                    
+                    <div class="demo-section" style="background: #e3f2fd;">
+                        <h3>🧪 Kiểm tra form data:</h3>
+                        <button onclick="checkFormData()" style="background: #1976d2; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                            Lấy dữ liệu form
+                        </button>
+                        <div id="form-data" style="margin-top: 15px;"></div>
+                    </div>
+                `;
+                
+                // Function để check form data
+                window.checkFormData = function() {
+                    const formData = new FormData();
+                    const inputs = document.querySelectorAll('input, select, textarea');
+                    const data = {};
+                    
+                    inputs.forEach(input => {
+                        if (input.type === 'checkbox') {
+                            data[input.name] = input.checked;
+                        } else {
+                            data[input.name] = input.value;
+                        }
+                    });
+                    
+                    document.getElementById('form-data').innerHTML = `
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace;">
+                            <strong>📋 Form Data:</strong><br>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                };
+                
+            } catch (error) {
+                demoDiv.innerHTML = `<div class="test-result error">❌ Lỗi: ${error.message}</div>`;
+            }
+        }
+        
+        // Run test khi page load
+        window.onload = runTest;
+    </script>
+</body>
+</html>
