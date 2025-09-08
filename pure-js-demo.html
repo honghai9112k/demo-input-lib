@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure JavaScript Demo - Lowcode Input Library</title>
+    <!-- Only this single JS file - no Vue needed! -->
+    <script src="./dist/lowcode-input-lib.umd.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>🔥 Pure JavaScript Demo - Zero Dependencies!</h1>
+        <p><strong>✅ Không cần Vue - 100% Vanilla JavaScript (18KB)</strong></p>
+        
+        <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 12px;">
+            
+            <!-- Text Input -->
+            <div style="margin-bottom: 20px;">
+                <h3>📝 Text Input</h3>
+                <div id="text-container"></div>
+                <p>Value: <span id="text-value">-</span></p>
+            </div>
+
+            <!-- Number Input -->
+            <div style="margin-bottom: 20px;">
+                <h3>🔢 Number Input</h3>
+                <div id="number-container"></div>
+                <p>Value: <span id="number-value">-</span></p>
+            </div>
+
+            <!-- Select Input -->
+            <div style="margin-bottom: 20px;">
+                <h3>📋 Select Input</h3>
+                <div id="select-container"></div>
+                <p>Value: <span id="select-value">-</span></p>
+            </div>
+
+            <!-- Textarea -->
+            <div style="margin-bottom: 20px;">
+                <h3>📄 Textarea Input</h3>
+                <div id="textarea-container"></div>
+                <p>Value: <span id="textarea-value">-</span></p>
+            </div>
+
+            <!-- Checkbox -->
+            <div style="margin-bottom: 20px;">
+                <h3>☑️ Checkbox Input</h3>
+                <div id="checkbox-container"></div>
+                <p>Value: <span id="checkbox-value">-</span></p>
+            </div>
+
+            <!-- Radio Group -->
+            <div style="margin-bottom: 20px;">
+                <h3>🔘 Radio Group</h3>
+                <div id="radio-container"></div>
+                <p>Value: <span id="radio-value">-</span></p>
+            </div>
+
+            <!-- Date Input -->
+            <div style="margin-bottom: 20px;">
+                <h3>📅 Date Input</h3>
+                <div id="date-container"></div>
+                <p>Value: <span id="date-value">-</span></p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        console.log('LowcodeInputLib available:', typeof LowcodeInputLib !== 'undefined');
+        console.log('Library contents:', LowcodeInputLib);
+        
+        // Create Text Input
+        const textInput = LowcodeInputLib.createTextInput({
+            placeholder: 'Pure JavaScript!',
+            class: 'custom-class'
+        });
+        textInput.on('change', (value) => {
+            document.getElementById('text-value').textContent = value;
+        });
+        textInput.mount('#text-container');
+
+        // Create Number Input
+        const numberInput = LowcodeInputLib.createNumberInput({
+            placeholder: 'Enter number...',
+            min: 0,
+            max: 100,
+            value: 42
+        });
+        numberInput.on('change', (value) => {
+            document.getElementById('number-value').textContent = value;
+        });
+        numberInput.mount('#number-container');
+        document.getElementById('number-value').textContent = numberInput.getValue();
+
+        // Create Select Input
+        const selectInput = LowcodeInputLib.createSelectInput({
+            placeholder: 'Choose option...',
+            options: [
+                { value: 'js', label: 'Pure JavaScript' },
+                { value: 'fast', label: 'Super Fast' },
+                { value: 'light', label: 'Lightweight' }
+            ]
+        });
+        selectInput.on('change', (value) => {
+            document.getElementById('select-value').textContent = value;
+        });
+        selectInput.mount('#select-container');
+
+        // Create Textarea
+        const textareaInput = LowcodeInputLib.createTextareaInput({
+            placeholder: 'Long text here...',
+            rows: 4
+        });
+        textareaInput.on('change', (value) => {
+            document.getElementById('textarea-value').textContent = value.slice(0, 50) + (value.length > 50 ? '...' : '');
+        });
+        textareaInput.mount('#textarea-container');
+
+        // Create Checkbox
+        const checkboxInput = LowcodeInputLib.createCheckboxInput({
+            label: 'Pure JavaScript is awesome!',
+            value: true,
+            id: 'pure-js-check'
+        });
+        checkboxInput.on('change', (value) => {
+            document.getElementById('checkbox-value').textContent = value;
+        });
+        checkboxInput.mount('#checkbox-container');
+        document.getElementById('checkbox-value').textContent = checkboxInput.getValue();
+
+        // Create Radio Group
+        const radioInput = LowcodeInputLib.createRadioGroupInput({
+            name: 'js-size',
+            direction: 'horizontal',
+            value: 'small',
+            options: [
+                { value: 'tiny', label: '18KB' },
+                { value: 'small', label: 'Fast' },
+                { value: 'zero', label: 'Zero Deps' }
+            ]
+        });
+        radioInput.on('change', (value) => {
+            document.getElementById('radio-value').textContent = value;
+        });
+        radioInput.mount('#radio-container');
+        document.getElementById('radio-value').textContent = radioInput.getValue();
+
+        // Create Date Input
+        const dateInput = LowcodeInputLib.createDateInput({
+            value: new Date().toISOString().split('T')[0]
+        });
+        dateInput.on('change', (value) => {
+            document.getElementById('date-value').textContent = value;
+        });
+        dateInput.mount('#date-container');
+        document.getElementById('date-value').textContent = dateInput.getValue();
+
+        console.log('✅ All components created successfully with Pure JavaScript!');
+    </script>
+</body>
+</html>

@@ -1,15 +1,15 @@
 # 📚 Lowcode Input Library
 
-Thư viện input components cho Lowcoder platform - **100% Standalone, không phụ thuộc external!**
+Thư viện input components cho Lowcoder platform - **100% Pure JavaScript, Zero Dependencies!**
 
 ## ✨ Tính năng
 
-- 🎯 **Zero Dependencies**: Vue đã được bundle vào, không cần load external
-- 🚀 **Single File**: Chỉ 1 file JS duy nhất với CSS embedded
-- 🎨 Modern CSS với animations và hover effects  
-- 📱 Responsive design
-- 🌗 Dark mode support
-- 📦 117KB gzip 39KB - Self-contained
+- 🔥 **Pure JavaScript**: Không Vue, React hay framework nào - vanilla JS thuần
+- 🎯 **Zero Dependencies**: Hoàn toàn độc lập, không phụ thuộc external
+- 🚀 **Ultra Lightweight**: Chỉ 18.92KB (3.32KB gzipped)
+- 🎨 **Modern CSS**: Embedded với animations và hover effects  
+- 📱 **ES2015 Compatible**: Lowcoder friendly syntax
+- 📦 **Single File**: CSS + JS trong 1 file duy nhất
 
 ## 📋 Components
 
@@ -42,38 +42,68 @@ https://raw.githubusercontent.com/USERNAME/lowcode-input-lib/refs/heads/main/dis
 
 ## 🚀 Cách sử dụng trong Lowcoder
 
-### ✅ Chỉ cần 1 file duy nhất!
+### ✅ Chỉ cần 1 file JavaScript thuần!
 
-**Không cần load Vue external** - tất cả đã được bundle:
+**Không lỗi syntax, không dependencies, không Vue:**
 
 ```html
 <!-- Chỉ cần file này -->
 <script src="https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js"></script>
 ```
 
-### 🎯 Components tự động sẵn sàng
+### 🔧 API đơn giản và rõ ràng
 
 ```javascript
-// Sử dụng helper function được tạo sẵn
-const app = createLowcoderApp({
-  data() {
-    return {
-      textValue: '',
-      options: [
-        { value: 'opt1', label: 'Option 1' },
-        { value: 'opt2', label: 'Option 2' }
-      ]
-    }
-  }
+// Tạo text input
+const textInput = LowcodeInputLib.createTextInput({
+  placeholder: 'Enter text...',
+  class: 'my-custom-class'
 });
 
-app.mount('#app');
+// Listen for changes
+textInput.on('change', (value) => {
+  console.log('Text changed:', value);
+});
+
+// Mount to DOM
+textInput.mount('#container');
+
+// Set/get values
+textInput.setValue('New value');
+const currentValue = textInput.getValue();
 ```
 
-```html
-<!-- Components đã được đăng ký global -->
-<lowcoder-text-input v-model="textValue" placeholder="Ready to use!"></lowcoder-text-input>
-<lowcoder-select-input v-model="selectValue" :options="options"></lowcoder-select-input>
+### 📋 Tất cả component types:
+
+```javascript
+// Text Input
+LowcodeInputLib.createTextInput(options)
+
+// Number Input  
+LowcodeInputLib.createNumberInput({ min: 0, max: 100 })
+
+// Select Input
+LowcodeInputLib.createSelectInput({ 
+  options: [
+    { value: 'opt1', label: 'Option 1' },
+    { value: 'opt2', label: 'Option 2' }
+  ] 
+})
+
+// Textarea
+LowcodeInputLib.createTextareaInput({ rows: 4 })
+
+// Checkbox
+LowcodeInputLib.createCheckboxInput({ label: 'Check me' })
+
+// Radio Group
+LowcodeInputLib.createRadioGroupInput({ 
+  options: [...],
+  direction: 'horizontal' // or 'vertical'
+})
+
+// Date Input
+LowcodeInputLib.createDateInput()
 ```
 
 ## 💡 Sử dụng
@@ -131,19 +161,21 @@ open demo-single-file.html
 
 ```
 dist/
-└── lowcode-input-lib.umd.js    # Standalone file (117KB, 39KB gzipped)
-                                # Vue + Components + CSS all bundled
+└── lowcode-input-lib.umd.js    # Pure JavaScript + CSS (18.92KB, 3.32KB gzipped)
+                                # No Vue, No React, No Dependencies
 ```
 
 ## 🎯 URL cho Lowcoder
 `https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js`
 
-## 🔧 Không còn lỗi dependency!
+## ✅ Giải quyết tất cả vấn đề Lowcoder!
 
-✅ **Không cần load Vue external**  
-✅ **Không có lỗi `defineComponent`**  
-✅ **Zero external dependencies**  
-✅ **Single file deployment**
+✅ **Không lỗi `Unexpected token ':'`** - Pure JavaScript ES2015  
+✅ **Không lỗi `defineComponent`** - Không dùng Vue  
+✅ **Zero external dependencies** - Hoàn toàn self-contained  
+✅ **18KB lightweight** - Siêu nhẹ so với 117KB trước đó
+✅ **Modern CSS embedded** - Styling đẹp built-in  
+✅ **Simple API** - Dễ sử dụng hơn Vue components
 
 ## 🔧 Build Process
 
