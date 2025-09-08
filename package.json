@@ -1,0 +1,35 @@
+{
+  "name": "@vnpt/lowcoder-input-lib",
+  "version": "1.0.0",
+  "description": "Vue 3 input components library for Lowcoder - UMD build",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "vue3",
+    "lowcoder",
+    "input",
+    "components",
+    "umd"
+  ],
+  "author": "HAI",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2",
+    "vue": "^3.5.18"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  }
+}
