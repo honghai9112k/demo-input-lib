@@ -5,22 +5,27 @@ import { injectCSS } from './inject-css-plugin.js'
 
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          // Compile to vanilla JS functions
+          isCustomElement: () => false
+        }
+      }
+    }),
     injectCSS()
   ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'LowcoderInputLib',
-      fileName: 'lowcoder-input-lib',
+      fileName: 'lowcode-input-lib',
       formats: ['umd']
     },
     rollupOptions: {
-      external: ['vue'],
+      external: [], // Don't externalize Vue - bundle it
       output: {
-        globals: {
-          vue: 'Vue'
-        }
+        globals: {}
       }
     }
   }

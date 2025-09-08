@@ -1,5 +1,6 @@
 // Import CSS styles - sẽ được inline vào JS bundle
 import './styles.css';
+import { createApp } from 'vue';
 
 import TextInput from './components/TextInput.vue';
 import NumberInput from './components/NumberInput.vue';
@@ -23,13 +24,34 @@ export {
 // Export types
 export * from './types';
 
-// Auto-register components globally when Vue is available
+// Auto-register components globally using bundled Vue
 const autoRegister = () => {
-  if (typeof window !== 'undefined' && (window as any).Vue) {
-    const Vue = (window as any).Vue;
-    if (Vue.createApp) {
-      // Vue 3 - Register components globally
-      const app = Vue.createApp({});
+  if (typeof window !== 'undefined') {
+    // Create temporary app to register components globally
+    const tempApp = createApp({});
+    tempApp.component('lowcoder-text-input', TextInput);
+    tempApp.component('lowcoder-number-input', NumberInput);
+    tempApp.component('lowcoder-select-input', SelectInput);
+    tempApp.component('lowcoder-textarea-input', TextareaInput);
+    tempApp.component('lowcoder-checkbox-input', CheckboxInput);
+    tempApp.component('lowcoder-radio-group-input', RadioGroupInput);
+    tempApp.component('lowcoder-date-input', DateInput);
+    
+    // Make Vue and components available globally
+    (window as any).Vue = { createApp };
+    (window as any).LowcoderInputComponents = {
+      TextInput,
+      NumberInput,
+      SelectInput,
+      TextareaInput,
+      CheckboxInput,
+      RadioGroupInput,
+      DateInput
+    };
+
+    // Auto-mount helper
+    (window as any).createLowcoderApp = (config: any) => {
+      const app = createApp(config);
       app.component('lowcoder-text-input', TextInput);
       app.component('lowcoder-number-input', NumberInput);
       app.component('lowcoder-select-input', SelectInput);
@@ -37,36 +59,13 @@ const autoRegister = () => {
       app.component('lowcoder-checkbox-input', CheckboxInput);
       app.component('lowcoder-radio-group-input', RadioGroupInput);
       app.component('lowcoder-date-input', DateInput);
-      
-      // Make components available globally
-      (window as any).LowcoderInputComponents = {
-        TextInput,
-        NumberInput,
-        SelectInput,
-        TextareaInput,
-        CheckboxInput,
-        RadioGroupInput,
-        DateInput
-      };
-    }
+      return app;
+    };
   }
 };
 
-// Try to auto-register immediately
+// Auto-register immediately
 autoRegister();
-
-// If Vue is not available yet, wait for it
-if (typeof window !== 'undefined' && !(window as any).Vue) {
-  const checkVue = setInterval(() => {
-    if ((window as any).Vue) {
-      clearInterval(checkVue);
-      autoRegister();
-    }
-  }, 100);
-  
-  // Stop checking after 10 seconds
-  setTimeout(() => clearInterval(checkVue), 10000);
-}
 
 // Default export for UMD build - Lowcoder sẽ sử dụng
 const LowcoderInputLib = {
@@ -77,6 +76,7 @@ const LowcoderInputLib = {
   CheckboxInput,
   RadioGroupInput,
   DateInput,
+  createApp, // Export Vue's createApp
   // Install function for manual registration
   install: (app: any) => {
     app.component('lowcoder-text-input', TextInput);

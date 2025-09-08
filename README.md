@@ -1,15 +1,15 @@
 # 📚 Lowcode Input Library
 
-Thư viện Vue 3 components cho Lowcoder platform - **Chỉ cần 1 file JS duy nhất!**
+Thư viện input components cho Lowcoder platform - **100% Standalone, không phụ thuộc external!**
 
 ## ✨ Tính năng
 
-- 🎯 **Single File Deployment**: CSS đã được embed vào JS, chỉ cần import 1 file
-- 🚀 Vue 3 + TypeScript
+- 🎯 **Zero Dependencies**: Vue đã được bundle vào, không cần load external
+- 🚀 **Single File**: Chỉ 1 file JS duy nhất với CSS embedded
 - 🎨 Modern CSS với animations và hover effects  
 - 📱 Responsive design
 - 🌗 Dark mode support
-- 📦 UMD format - tương thích với mọi môi trường
+- 📦 117KB gzip 39KB - Self-contained
 
 ## 📋 Components
 
@@ -42,32 +42,20 @@ https://raw.githubusercontent.com/USERNAME/lowcode-input-lib/refs/heads/main/dis
 
 ## 🚀 Cách sử dụng trong Lowcoder
 
-### ⚠️ Quan trọng: Thứ tự load library
+### ✅ Chỉ cần 1 file duy nhất!
 
-Để tránh lỗi `Cannot read properties of undefined (reading 'defineComponent')`, cần đảm bảo thứ tự:
+**Không cần load Vue external** - tất cả đã được bundle:
 
-1. **Load Vue 3 trước:**
 ```html
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-```
-
-2. **Sau đó load library:**
-```html
+<!-- Chỉ cần file này -->
 <script src="https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js"></script>
 ```
 
-### ✅ Components tự động đăng ký
-
-Library sẽ tự động:
-- Phát hiện Vue
-- Đăng ký tất cả components global
-- Sẵn sàng sử dụng ngay
+### 🎯 Components tự động sẵn sàng
 
 ```javascript
-// Không cần import - components đã được đăng ký global
-const { createApp } = Vue;
-
-createApp({
+// Sử dụng helper function được tạo sẵn
+const app = createLowcoderApp({
   data() {
     return {
       textValue: '',
@@ -77,12 +65,14 @@ createApp({
       ]
     }
   }
-}).mount('#app');
+});
+
+app.mount('#app');
 ```
 
 ```html
-<!-- Sử dụng trực tiếp -->
-<lowcoder-text-input v-model="textValue" placeholder="Nhập text..."></lowcoder-text-input>
+<!-- Components đã được đăng ký global -->
+<lowcoder-text-input v-model="textValue" placeholder="Ready to use!"></lowcoder-text-input>
 <lowcoder-select-input v-model="selectValue" :options="options"></lowcoder-select-input>
 ```
 
@@ -141,36 +131,19 @@ open demo-single-file.html
 
 ```
 dist/
-└── lowcode-input-lib.umd.js    # Single file with embedded CSS (21KB)
+└── lowcode-input-lib.umd.js    # Standalone file (117KB, 39KB gzipped)
+                                # Vue + Components + CSS all bundled
 ```
 
-## 🎯 Ví dụ URL thực tế
-Giống như: `https://raw.githubusercontent.com/anhnk456/camuda/refs/heads/main/my-bpmn-widget.umd.js`
+## 🎯 URL cho Lowcoder
+`https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js`
 
-URL của bạn sẽ là: `https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js`
+## 🔧 Không còn lỗi dependency!
 
-## 🔧 Troubleshooting
-
-### ❌ Lỗi: `Cannot read properties of undefined (reading 'defineComponent')`
-
-**Nguyên nhân:** Vue chưa được load khi library khởi tạo
-
-**Giải pháp:**
-1. Đảm bảo load Vue 3 trước library
-2. Sử dụng thứ tự chính xác:
-```html
-<!-- 1. Load Vue trước -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- 2. Load library sau -->
-<script src="YOUR_GITHUB_RAW_URL"></script>
-```
-
-### ✅ Kiểm tra library đã load thành công:
-```javascript
-console.log('Vue:', typeof Vue !== 'undefined');
-console.log('Library:', typeof LowcoderInputLib !== 'undefined'); 
-console.log('Components:', window.LowcoderInputComponents);
-```
+✅ **Không cần load Vue external**  
+✅ **Không có lỗi `defineComponent`**  
+✅ **Zero external dependencies**  
+✅ **Single file deployment**
 
 ## 🔧 Build Process
 
