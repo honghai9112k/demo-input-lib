@@ -2,46 +2,90 @@
 // CSS will be injected by build process
 import './styles.css';
 
-// Pure JS implementation without Vue dependencies
-class InputComponent {
-  constructor(type, options = {}) {
-    this.type = type;
+// Base Input Class
+class BaseInput {
+  constructor(options = {}) {
     this.options = options;
-    this.element = null;
     this.value = options.value || '';
     this.listeners = {};
+    this.element = null;
   }
 
   createElement() {
-    if (this.element) return this.element;
-
-    switch (this.type) {
-      case 'text':
-      case 'number':
-      case 'date':
-        this.element = this.createInputElement();
-        break;
-      case 'textarea':
-        this.element = this.createTextareaElement();
-        break;
-      case 'select':
-        this.element = this.createSelectElement();
-        break;
-      case 'checkbox':
-        this.element = this.createCheckboxElement();
-        break;
-      case 'radio':
-        this.element = this.createRadioGroupElement();
-        break;
-    }
-
-    return this.element;
+    throw new Error('createElement must be implemented by subclass');
   }
 
-  createInputElement() {
+  mount(containerSelector) {
+    const container = typeof containerSelector === 'string' 
+      ? document.querySelector(containerSelector) 
+      : containerSelector;
+    
+    if (container) {
+      if (!this.element) {
+        this.element = this.createElement();
+      }
+      container.appendChild(this.element);
+    }
+    return this;
+  }
+
+  on(event, callback) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event].push(callback);
+    return this;
+  }
+
+  emit(event, data) {
+    if (this.listeners[event]) {
+      this.listeners[event].forEach(callback => callback(data));
+    }
+  }
+
+  getValue() {
+    if (!this.element) return this.value;
+    
+    if (this.element.tagName === 'DIV') {
+      // For checkbox/radio containers
+      const input = this.element.querySelector('input');
+      if (input.type === 'checkbox') {
+        return input.checked;
+      } else if (input.type === 'radio') {
+        const checked = this.element.querySelector('input:checked');
+        return checked ? checked.value : '';
+      }
+    }
+    return this.element.value;
+  }
+
+  setValue(value) {
+    this.value = value;
+    if (this.element) {
+      if (this.element.tagName === 'DIV') {
+        // For checkbox/radio containers
+        const input = this.element.querySelector('input');
+        if (input.type === 'checkbox') {
+          input.checked = Boolean(value);
+        } else if (input.type === 'radio') {
+          const radio = this.element.querySelector(`input[value="${value}"]`);
+          if (radio) radio.checked = true;
+        }
+      } else {
+        this.element.value = value;
+      }
+    }
+    this.emit('change', value);
+    return this;
+  }
+}
+
+// Text Input Class
+class TextInput extends BaseInput {
+  createElement() {
     const input = document.createElement('input');
-    input.type = this.type;
-    input.className = `lowcode-${this.type}-input ${this.options.class || ''}`;
+    input.type = this.options.type || 'text';
+    input.className = `lowcoder-text-input ${this.options.class || ''}`;
     input.id = this.options.id || '';
     input.name = this.options.name || '';
     input.placeholder = this.options.placeholder || '';
@@ -49,42 +93,68 @@ class InputComponent {
     input.required = this.options.required || false;
     input.value = this.value;
 
-    if (this.type === 'number') {
-      if (this.options.min !== undefined) input.min = this.options.min;
-      if (this.options.max !== undefined) input.max = this.options.max;
-      if (this.options.step !== undefined) input.step = this.options.step;
-    }
+    if (this.options.maxLength) input.maxLength = this.options.maxLength;
+    if (this.options.minLength) input.minLength = this.options.minLength;
+    if (this.options.pattern) input.pattern = this.options.pattern;
 
-    input.addEventListener('input', (e) => this.handleInput(e));
-    input.addEventListener('change', (e) => this.handleChange(e));
-    input.addEventListener('blur', (e) => this.handleBlur(e));
-    input.addEventListener('focus', (e) => this.handleFocus(e));
+    input.addEventListener('input', (e) => {
+      this.value = e.target.value;
+      this.emit('input', this.value);
+    });
+    
+    input.addEventListener('change', (e) => {
+      this.value = e.target.value;
+      this.emit('change', this.value);
+    });
+    
+    input.addEventListener('blur', (e) => this.emit('blur', e));
+    input.addEventListener('focus', (e) => this.emit('focus', e));
 
     return input;
   }
+}
 
-  createTextareaElement() {
-    const textarea = document.createElement('textarea');
-    textarea.className = `lowcode-textarea-input ${this.options.class || ''}`;
-    textarea.id = this.options.id || '';
-    textarea.name = this.options.name || '';
-    textarea.placeholder = this.options.placeholder || '';
-    textarea.disabled = this.options.disabled || false;
-    textarea.required = this.options.required || false;
-    textarea.rows = this.options.rows || 3;
-    textarea.value = this.value;
+// Number Input Class
+class NumberInput extends BaseInput {
+  createElement() {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = `lowcoder-number-input ${this.options.class || ''}`;
+    input.id = this.options.id || '';
+    input.name = this.options.name || '';
+    input.placeholder = this.options.placeholder || '';
+    input.disabled = this.options.disabled || false;
+    input.required = this.options.required || false;
+    input.value = this.value;
 
-    textarea.addEventListener('input', (e) => this.handleInput(e));
-    textarea.addEventListener('change', (e) => this.handleChange(e));
-    textarea.addEventListener('blur', (e) => this.handleBlur(e));
-    textarea.addEventListener('focus', (e) => this.handleFocus(e));
+    if (this.options.min !== undefined) input.min = this.options.min;
+    if (this.options.max !== undefined) input.max = this.options.max;
+    if (this.options.step !== undefined) input.step = this.options.step;
 
-    return textarea;
+    input.addEventListener('input', (e) => {
+      const numValue = parseFloat(e.target.value) || 0;
+      this.value = numValue;
+      this.emit('input', this.value);
+    });
+    
+    input.addEventListener('change', (e) => {
+      const numValue = parseFloat(e.target.value) || 0;
+      this.value = numValue;
+      this.emit('change', this.value);
+    });
+    
+    input.addEventListener('blur', (e) => this.emit('blur', e));
+    input.addEventListener('focus', (e) => this.emit('focus', e));
+
+    return input;
   }
+}
 
-  createSelectElement() {
+// Select Input Class
+class SelectInput extends BaseInput {
+  createElement() {
     const select = document.createElement('select');
-    select.className = `lowcode-select-input ${this.options.class || ''}`;
+    select.className = `lowcoder-select-input ${this.options.class || ''}`;
     select.id = this.options.id || '';
     select.name = this.options.name || '';
     select.disabled = this.options.disabled || false;
@@ -111,16 +181,61 @@ class InputComponent {
       });
     }
 
-    select.addEventListener('change', (e) => this.handleChange(e));
-    select.addEventListener('blur', (e) => this.handleBlur(e));
-    select.addEventListener('focus', (e) => this.handleFocus(e));
+    select.addEventListener('change', (e) => {
+      if (this.options.multiple) {
+        this.value = Array.from(e.target.selectedOptions).map(opt => opt.value);
+      } else {
+        this.value = e.target.value;
+      }
+      this.emit('change', this.value);
+    });
+    
+    select.addEventListener('blur', (e) => this.emit('blur', e));
+    select.addEventListener('focus', (e) => this.emit('focus', e));
 
     return select;
   }
+}
 
-  createCheckboxElement() {
+// Textarea Input Class
+class TextareaInput extends BaseInput {
+  createElement() {
+    const textarea = document.createElement('textarea');
+    textarea.className = `lowcoder-textarea-input ${this.options.class || ''}`;
+    textarea.id = this.options.id || '';
+    textarea.name = this.options.name || '';
+    textarea.placeholder = this.options.placeholder || '';
+    textarea.disabled = this.options.disabled || false;
+    textarea.required = this.options.required || false;
+    textarea.rows = this.options.rows || 3;
+    textarea.value = this.value;
+
+    if (this.options.maxLength) textarea.maxLength = this.options.maxLength;
+    if (this.options.minLength) textarea.minLength = this.options.minLength;
+    if (this.options.cols) textarea.cols = this.options.cols;
+
+    textarea.addEventListener('input', (e) => {
+      this.value = e.target.value;
+      this.emit('input', this.value);
+    });
+    
+    textarea.addEventListener('change', (e) => {
+      this.value = e.target.value;
+      this.emit('change', this.value);
+    });
+    
+    textarea.addEventListener('blur', (e) => this.emit('blur', e));
+    textarea.addEventListener('focus', (e) => this.emit('focus', e));
+
+    return textarea;
+  }
+}
+
+// Checkbox Input Class
+class CheckboxInput extends BaseInput {
+  createElement() {
     const container = document.createElement('div');
-    container.className = `lowcode-checkbox ${this.options.class || ''}`;
+    container.className = `lowcoder-checkbox ${this.options.class || ''}`;
 
     const input = document.createElement('input');
     input.type = 'checkbox';
@@ -137,26 +252,35 @@ class InputComponent {
     container.appendChild(input);
     if (this.options.label) container.appendChild(label);
 
-    input.addEventListener('change', (e) => this.handleChange(e));
-    input.addEventListener('blur', (e) => this.handleBlur(e));
-    input.addEventListener('focus', (e) => this.handleFocus(e));
+    input.addEventListener('change', (e) => {
+      this.value = e.target.checked;
+      this.emit('change', this.value);
+    });
+    
+    input.addEventListener('blur', (e) => this.emit('blur', e));
+    input.addEventListener('focus', (e) => this.emit('focus', e));
 
     return container;
   }
+}
 
-  createRadioGroupElement() {
+// Radio Group Input Class
+class RadioGroupInput extends BaseInput {
+  createElement() {
     const container = document.createElement('div');
-    container.className = `lowcode-radio-group ${this.options.direction || 'vertical'} ${this.options.class || ''}`;
+    container.className = `lowcoder-radio-group ${this.options.direction || 'vertical'} ${this.options.class || ''}`;
 
     if (this.options.options) {
+      const groupName = `radio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       this.options.options.forEach(opt => {
         const itemContainer = document.createElement('div');
-        itemContainer.className = 'lowcode-radio-item';
+        itemContainer.className = 'lowcoder-radio-item';
 
         const input = document.createElement('input');
         input.type = 'radio';
         input.id = `${this.options.id || 'radio'}-${opt.value}`;
-        input.name = this.options.name || '';
+        input.name = this.options.name || groupName;
         input.value = opt.value;
         input.disabled = this.options.disabled || opt.disabled || false;
         input.checked = opt.value === this.value;
@@ -169,111 +293,86 @@ class InputComponent {
         itemContainer.appendChild(label);
         container.appendChild(itemContainer);
 
-        input.addEventListener('change', (e) => this.handleChange(e));
-        input.addEventListener('blur', (e) => this.handleBlur(e));
-        input.addEventListener('focus', (e) => this.handleFocus(e));
+        input.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            this.value = e.target.value;
+            this.emit('change', this.value);
+          }
+        });
+        
+        input.addEventListener('blur', (e) => this.emit('blur', e));
+        input.addEventListener('focus', (e) => this.emit('focus', e));
       });
     }
 
     return container;
   }
+}
 
-  handleInput(e) {
-    this.value = e.target.value;
-    this.emit('input', this.value);
-  }
+// Date Input Class
+class DateInput extends BaseInput {
+  createElement() {
+    const input = document.createElement('input');
+    input.type = this.options.type || 'date';
+    input.className = `lowcoder-date-input ${this.options.class || ''}`;
+    input.id = this.options.id || '';
+    input.name = this.options.name || '';
+    input.disabled = this.options.disabled || false;
+    input.required = this.options.required || false;
+    input.value = this.value;
 
-  handleChange(e) {
-    if (this.type === 'checkbox') {
-      this.value = e.target.checked;
-    } else if (this.type === 'number') {
-      this.value = parseFloat(e.target.value) || 0;
-    } else if (this.type === 'select' && this.options.multiple) {
-      this.value = Array.from(e.target.selectedOptions).map(opt => opt.value);
-    } else {
+    if (this.options.min) input.min = this.options.min;
+    if (this.options.max) input.max = this.options.max;
+
+    input.addEventListener('change', (e) => {
       this.value = e.target.value;
-    }
-    this.emit('change', this.value);
-  }
-
-  handleBlur(e) {
-    this.emit('blur', e);
-  }
-
-  handleFocus(e) {
-    this.emit('focus', e);
-  }
-
-  on(event, callback) {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event].push(callback);
-  }
-
-  emit(event, data) {
-    if (this.listeners[event]) {
-      this.listeners[event].forEach(callback => callback(data));
-    }
-  }
-
-  setValue(value) {
-    this.value = value;
-    if (this.element) {
-      if (this.type === 'checkbox') {
-        this.element.querySelector('input').checked = Boolean(value);
-      } else if (this.type === 'radio') {
-        const radio = this.element.querySelector(`input[value="${value}"]`);
-        if (radio) radio.checked = true;
-      } else {
-        const input = this.element.tagName === 'DIV' ? this.element.querySelector('input, select, textarea') : this.element;
-        if (input) input.value = value;
-      }
-    }
-  }
-
-  getValue() {
-    return this.value;
-  }
-
-  mount(containerSelector) {
-    const container = typeof containerSelector === 'string' 
-      ? document.querySelector(containerSelector) 
-      : containerSelector;
+      this.emit('change', this.value);
+    });
     
-    if (container) {
-      container.appendChild(this.createElement());
-    }
-    return this;
+    input.addEventListener('blur', (e) => this.emit('blur', e));
+    input.addEventListener('focus', (e) => this.emit('focus', e));
+
+    return input;
   }
 }
 
-// Factory functions for easier use
+// Main Library Object with Constructor Classes
 const LowcodeInputLib = {
-  createTextInput: (options) => new InputComponent('text', options),
-  createNumberInput: (options) => new InputComponent('number', options),
-  createTextareaInput: (options) => new InputComponent('textarea', options),
-  createSelectInput: (options) => new InputComponent('select', options),
-  createCheckboxInput: (options) => new InputComponent('checkbox', options),
-  createRadioGroupInput: (options) => new InputComponent('radio', options),
-  createDateInput: (options) => new InputComponent('date', options),
+  // Export actual constructor classes
+  TextInput,
+  NumberInput,
+  SelectInput,
+  TextareaInput,
+  CheckboxInput,
+  RadioGroupInput,
+  DateInput,
   
-  // Direct component class
-  InputComponent,
+  // Helper factory methods (optional)
+  createTextInput: (options) => new TextInput(options),
+  createNumberInput: (options) => new NumberInput(options),
+  createSelectInput: (options) => new SelectInput(options),
+  createTextareaInput: (options) => new TextareaInput(options),
+  createCheckboxInput: (options) => new CheckboxInput(options),
+  createRadioGroupInput: (options) => new RadioGroupInput(options),
+  createDateInput: (options) => new DateInput(options),
   
-  version: '1.0.0'
+  version: '2.0.0'
 };
 
 // Auto-register global if in browser
 if (typeof window !== 'undefined') {
   window.LowcodeInputLib = LowcodeInputLib;
-  window.createLowcodeApp = function(config) {
-    return {
-      mount: function(selector) {
-        console.log('Pure JS version mounted to:', selector);
-      }
-    };
-  };
+  
+  // Also expose individual classes globally for easier access
+  window.LowcoderTextInput = TextInput;
+  window.LowcoderNumberInput = NumberInput;
+  window.LowcoderSelectInput = SelectInput;
+  window.LowcoderTextareaInput = TextareaInput;
+  window.LowcoderCheckboxInput = CheckboxInput;
+  window.LowcoderRadioGroupInput = RadioGroupInput;
+  window.LowcoderDateInput = DateInput;
+  
+  console.log('✅ LowcodeInputLib loaded successfully!');
 }
 
 export default LowcodeInputLib;

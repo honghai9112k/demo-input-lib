@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor Test - Lowcode Input Library</title>
+    <script src="./dist/lowcode-input-lib.umd.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            font-weight: bold;
+        }
+        .success { 
+            background: #d1fae5; 
+            color: #047857; 
+            border: 1px solid #10b981;
+        }
+        .error { 
+            background: #fee2e2; 
+            color: #dc2626; 
+            border: 1px solid #ef4444;
+        }
+        pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .input-container {
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Constructor Test - Lowcode Input Library</h1>
+    
+    <div class="test-section">
+        <h2>1. Kiểm tra Library Load</h2>
+        <div id="library-check"></div>
+        
+        <h2>2. Test Constructor từng loại Input</h2>
+        <div id="constructor-tests"></div>
+        
+        <h2>3. Test thực tế tạo Input Elements</h2>
+        <div id="input-demo"></div>
+    </div>
+
+    <script>
+        // Test 1: Kiểm tra library đã load chưa
+        function testLibraryLoad() {
+            const checkDiv = document.getElementById('library-check');
+            
+            if (typeof window.LowcodeInputLib !== 'undefined') {
+                checkDiv.innerHTML = `
+                    <div class="status success">✅ Library loaded successfully!</div>
+                    <pre>window.LowcodeInputLib = ${JSON.stringify(Object.keys(window.LowcodeInputLib), null, 2)}</pre>
+                `;
+                return true;
+            } else {
+                checkDiv.innerHTML = `<div class="status error">❌ Library not found!</div>`;
+                return false;
+            }
+        }
+
+        // Test 2: Kiểm tra constructor
+        function testConstructors() {
+            const testDiv = document.getElementById('constructor-tests');
+            const constructors = [
+                'TextInput', 'NumberInput', 'SelectInput', 
+                'TextareaInput', 'CheckboxInput', 'RadioGroupInput', 'DateInput'
+            ];
+            
+            let results = '';
+            
+            constructors.forEach(name => {
+                try {
+                    const Constructor = window.LowcodeInputLib[name];
+                    
+                    if (typeof Constructor === 'function') {
+                        // Test constructor
+                        const instance = new Constructor({
+                            label: `Test ${name}`,
+                            name: `test_${name.toLowerCase()}`
+                        });
+                        
+                        if (instance && typeof instance.render === 'function') {
+                            results += `<div class="status success">✅ ${name}: Constructor OK, có method render()</div>`;
+                        } else {
+                            results += `<div class="status error">❌ ${name}: Constructor OK nhưng không có method render()</div>`;
+                        }
+                    } else {
+                        results += `<div class="status error">❌ ${name}: Không phải function constructor</div>`;
+                    }
+                } catch (error) {
+                    results += `<div class="status error">❌ ${name}: Lỗi constructor - ${error.message}</div>`;
+                }
+            });
+            
+            testDiv.innerHTML = results;
+        }
+
+        // Test 3: Tạo thực tế các input elements
+        function createInputDemo() {
+            const demoDiv = document.getElementById('input-demo');
+            
+            try {
+                // Text Input
+                const textInput = new window.LowcodeInputLib.TextInput({
+                    label: 'Họ và tên',
+                    name: 'fullname',
+                    placeholder: 'Nhập họ tên của bạn...',
+                    required: true
+                });
+                
+                // Number Input
+                const numberInput = new window.LowcodeInputLib.NumberInput({
+                    label: 'Tuổi',
+                    name: 'age',
+                    min: 0,
+                    max: 150
+                });
+                
+                // Select Input
+                const selectInput = new window.LowcodeInputLib.SelectInput({
+                    label: 'Tỉnh/Thành phố',
+                    name: 'province',
+                    options: [
+                        { value: '', text: '-- Chọn tỉnh/thành --' },
+                        { value: 'hanoi', text: 'Hà Nội' },
+                        { value: 'hcm', text: 'TP. Hồ Chí Minh' },
+                        { value: 'danang', text: 'Đà Nẵng' }
+                    ]
+                });
+                
+                // Checkbox
+                const checkboxInput = new window.LowcodeInputLib.CheckboxInput({
+                    label: 'Tôi đồng ý với điều khoản sử dụng',
+                    name: 'agree_terms',
+                    required: true
+                });
+                
+                // Render all inputs
+                const containers = [
+                    { input: textInput, title: 'Text Input' },
+                    { input: numberInput, title: 'Number Input' }, 
+                    { input: selectInput, title: 'Select Input' },
+                    { input: checkboxInput, title: 'Checkbox Input' }
+                ];
+                
+                let html = '<div class="status success">✅ Tất cả inputs đã được tạo thành công!</div>';
+                
+                containers.forEach(({ input, title }) => {
+                    html += `
+                        <div class="input-container">
+                            <h4>${title}:</h4>
+                            ${input.render()}
+                        </div>
+                    `;
+                });
+                
+                demoDiv.innerHTML = html;
+                
+            } catch (error) {
+                demoDiv.innerHTML = `<div class="status error">❌ Lỗi tạo inputs: ${error.message}</div>`;
+            }
+        }
+
+        // Run all tests
+        window.onload = function() {
+            const libraryLoaded = testLibraryLoad();
+            
+            if (libraryLoaded) {
+                testConstructors();
+                createInputDemo();
+            }
+        };
+    </script>
+</body>
+</html>
