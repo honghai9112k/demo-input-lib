@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auto Registration - Lowcode Input Library</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Load library after Vue -->
+    <script src="./dist/lowcode-input-lib.umd.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>🔧 Test Auto Registration</h1>
+        <p>Testing if components are auto-registered after loading Vue</p>
+        
+        <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+            
+            <!-- Test auto-registered components -->
+            <div style="margin-bottom: 20px;">
+                <h3>Auto-registered Text Input</h3>
+                <lowcoder-text-input 
+                    v-model="testValue" 
+                    placeholder="Test auto registration...">
+                </lowcoder-text-input>
+                <p>Value: {{ testValue }}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>Auto-registered Select</h3>
+                <lowcoder-select-input 
+                    v-model="selectValue" 
+                    :options="options"
+                    placeholder="Choose option...">
+                </lowcoder-select-input>
+                <p>Selected: {{ selectValue }}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>Auto-registered Checkbox</h3>
+                <lowcoder-checkbox-input 
+                    v-model="checkValue" 
+                    label="Auto registration works!"
+                    id="test-checkbox">
+                </lowcoder-checkbox-input>
+                <p>Checked: {{ checkValue }}</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Test if Vue and components are available
+        console.log('Vue available:', typeof Vue !== 'undefined');
+        console.log('LowcoderInputLib available:', typeof LowcoderInputLib !== 'undefined');
+        console.log('Global components:', window.LowcoderInputComponents);
+        
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    testValue: '',
+                    selectValue: '',
+                    checkValue: false,
+                    options: [
+                        { value: 'test1', label: 'Test Option 1' },
+                        { value: 'test2', label: 'Test Option 2' },
+                        { value: 'test3', label: 'Test Option 3' }
+                    ]
+                }
+            },
+            mounted() {
+                console.log('App mounted successfully');
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

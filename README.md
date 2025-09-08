@@ -40,10 +40,50 @@ Sau khi push lên GitHub, file sẽ có đường dẫn:
 https://raw.githubusercontent.com/USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js
 ```
 
-### Bước 3: Sử dụng trong Lowcoder
+## 🚀 Cách sử dụng trong Lowcoder
+
+### ⚠️ Quan trọng: Thứ tự load library
+
+Để tránh lỗi `Cannot read properties of undefined (reading 'defineComponent')`, cần đảm bảo thứ tự:
+
+1. **Load Vue 3 trước:**
 ```html
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://raw.githubusercontent.com/USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js"></script>
+```
+
+2. **Sau đó load library:**
+```html
+<script src="https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js"></script>
+```
+
+### ✅ Components tự động đăng ký
+
+Library sẽ tự động:
+- Phát hiện Vue
+- Đăng ký tất cả components global
+- Sẵn sàng sử dụng ngay
+
+```javascript
+// Không cần import - components đã được đăng ký global
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      textValue: '',
+      options: [
+        { value: 'opt1', label: 'Option 1' },
+        { value: 'opt2', label: 'Option 2' }
+      ]
+    }
+  }
+}).mount('#app');
+```
+
+```html
+<!-- Sử dụng trực tiếp -->
+<lowcoder-text-input v-model="textValue" placeholder="Nhập text..."></lowcoder-text-input>
+<lowcoder-select-input v-model="selectValue" :options="options"></lowcoder-select-input>
 ```
 
 ## 💡 Sử dụng
@@ -108,6 +148,29 @@ dist/
 Giống như: `https://raw.githubusercontent.com/anhnk456/camuda/refs/heads/main/my-bpmn-widget.umd.js`
 
 URL của bạn sẽ là: `https://raw.githubusercontent.com/YOUR_USERNAME/lowcode-input-lib/refs/heads/main/dist/lowcode-input-lib.umd.js`
+
+## 🔧 Troubleshooting
+
+### ❌ Lỗi: `Cannot read properties of undefined (reading 'defineComponent')`
+
+**Nguyên nhân:** Vue chưa được load khi library khởi tạo
+
+**Giải pháp:**
+1. Đảm bảo load Vue 3 trước library
+2. Sử dụng thứ tự chính xác:
+```html
+<!-- 1. Load Vue trước -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- 2. Load library sau -->
+<script src="YOUR_GITHUB_RAW_URL"></script>
+```
+
+### ✅ Kiểm tra library đã load thành công:
+```javascript
+console.log('Vue:', typeof Vue !== 'undefined');
+console.log('Library:', typeof LowcoderInputLib !== 'undefined'); 
+console.log('Components:', window.LowcoderInputComponents);
+```
 
 ## 🔧 Build Process
 
